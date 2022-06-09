@@ -13,6 +13,7 @@ import winsound
 gui_text = {}
 gui_label_now = {}
 gui_label_eta = {}
+scr = 100000
 
 
 # GUI函数
@@ -82,13 +83,13 @@ page_end = int(input('截止个数：')) + 1
 def safe_check():
     """验证码等待
     """
-    gui_text['text'] = f'出错：如有验证请验证。等待20秒'
+    gui_text['text'] = f'出错：如有验证请验证。等待30秒'
     gui_text['bg'] = 'red'
     gui_label_eta['text'] = '-'
     gui_label_now['text'] = '-'
     winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
     winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
-    time.sleep(20)
+    time.sleep(30)
 
 
 for page in range(page_start, page_end):
@@ -98,9 +99,9 @@ for page in range(page_start, page_end):
     gui_label_eta['text'] = '-'
     try:
         # 尝试查找元素
-        itemele=browser.find_element(By.CSS_SELECTOR,
-                             f'#main > div > div:nth-child(2) > div > div > div.iXkfc0sA > div.CCuvAuS- > div > '
-                             f'div:nth-child({page}) > div > div > div.WXRcg5KA > div > img')
+        itemele = browser.find_element(By.CSS_SELECTOR,
+                                       f'#main > div > div:nth-child(2) > div > div > div.iXkfc0sA > div.CCuvAuS- > div > '
+                                       f'div:nth-child({page}) > div > div > div.WXRcg5KA > div > img')
         webdriver.ActionChains(browser).move_to_element(itemele)
     except:
         # 拦截安全验证
@@ -112,33 +113,37 @@ for page in range(page_start, page_end):
 
         # 尝试使用下翻页
         test = 0
-        scr = 100000
-        while True:
-            gui_text['text'] =f'下翻页查找元素{page}中'
-            gui_text['bg'] = 'red'
 
+        while True:
+            gui_text['text'] = f'下翻页查找元素{page}中'
+            gui_text['bg'] = 'red'
             browser.execute_script(f"document.documentElement.scrollTop={scr}")
             time.sleep(5)
             try:
+
                 test = test + 1
                 scr = scr * 1.3
+                print(f'scr:{scr}')
                 ele = browser.find_element(By.CSS_SELECTOR,
                                            f'#main > div > div:nth-child(2) > div > div > div.iXkfc0sA > div.CCuvAuS- > div > div:nth-child({page}) > div > div > div.PWKq3gf1 > div.fnpJrQyt.KbqLm0ek').text
             except:
                 # 判断是否找到该元素
                 gui_label_now['text'] = f'尝试翻页解决无法找到元素'
                 gui_label_eta['text'] = f'尝试第{test}次'
-                if test>10:
-                    page=page+1
+                if test > 3:
+                    page = page + 1
                     break
                 continue
 
             gui_label_now['text'] = '-'
             break
-
-
-    item_price = browser.find_element(By.CSS_SELECTOR,
-                                      f'#main > div > div:nth-child(2) > div > div > div.iXkfc0sA > div.CCuvAuS- > div > div:nth-child({page}) > div > div > div.PWKq3gf1 > div.ra5v5UQi > div > div._9D91bFn1 > span').text
+    # 拦截翻页后的安全验证，直接跳出本次循环
+    try:
+        item_price = browser.find_element(By.CSS_SELECTOR,
+                                          f'#main > div > div:nth-child(2) > div > div > div.iXkfc0sA > div.CCuvAuS- > div > div:nth-child({page}) > div > div > div.PWKq3gf1 > div.ra5v5UQi > div > div._9D91bFn1 > span').text
+    except:
+        print('fail to get price')
+        continue
     # 找到元素即点击
     gui_text['text'] = f'当前正在获取第{page}个，还有{page_end - page_start - page}个'
     gui_text['bg'] = '#10d269'
@@ -177,7 +182,7 @@ for page in range(page_start, page_end):
         gui_label_eta['text'] = f'延时获取：已延时{delay}秒，剩余{delay_time}秒'
         time.sleep(1)
     browser.back()
-    time.sleep(5)
+    time.sleep(2)
 
 print('程序结束')
 gui_text['text'] = '程序结束正在保存文件'
