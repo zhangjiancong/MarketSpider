@@ -89,7 +89,10 @@ def safe_check():
     gui_label_now['text'] = '-'
     winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
     winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
-    time.sleep(30)
+    for ti in range(0,31):
+        gui_label_eta['text'] = f'剩余等待{str(31-ti)}秒'
+        time.sleep(1)
+
 
 
 for page in range(page_start, page_end):
@@ -115,6 +118,7 @@ for page in range(page_start, page_end):
         test = 0
 
         while True:
+            winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
             gui_text['text'] = f'下翻页查找元素{page}中'
             gui_text['bg'] = 'red'
             browser.execute_script(f"document.documentElement.scrollTop={scr}")
@@ -161,6 +165,7 @@ for page in range(page_start, page_end):
     try:
         item_shop = browser.find_element(By.CSS_SELECTOR,
                                          '#main > div > div._2atM6O_- > div._1FjFNQJx._1PWnfoXL > div > div.hSg2uwm_ > div._3c93sjBH > div').text
+        webdriver.ActionChains(browser).move_to_element(item_shop)
     except:
         item_shop = 'fail to get shop'
     try:
