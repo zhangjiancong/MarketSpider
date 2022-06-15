@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from threading import Thread
 import winsound
+
 # 全局变量状态文字
 gui_text = {}
 gui_label_now = {}
@@ -46,9 +47,11 @@ browser = webdriver.Chrome()
 browser.get('https://www.jd.com')
 
 # CSV相关
-csvfile = open(f'{keyword}-jd-{time.strftime("%Y%m%d%H%M", time.localtime())}.csv', 'a', encoding='utf-8-sig', newline='')
-csvWriter = csv.DictWriter(csvfile, fieldnames=['item_name', 'item_price', 'item_shop'])
-csvWriter.writerow({'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称'})
+csvfile = open(f'{keyword}-jd-{time.strftime("%Y%m%d%H%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
+               newline='')
+csvWriter = csv.DictWriter(csvfile, fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link'])
+csvWriter.writerow(
+    {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接', 'item_link': '商品链接'})
 
 # cookie相关
 gui_text['text'] = '正在清空Cookie'
@@ -81,8 +84,8 @@ page_end = int(input('截止页数：')) + 1
 for page in range(page_start, page_end):
     gui_text['text'] = f'当前正在获取第{page}页，还有{page_end - page_start - page}页'
     gui_text['bg'] = '#10d269'
-    gui_label_now['text']='-'
-    gui_label_eta['text']='-'
+    gui_label_now['text'] = '-'
+    gui_label_eta['text'] = '-'
     browser.execute_script(f"SEARCH.page({2 * page - 1}, true)")
     time.sleep(5)
     browser.execute_script("document.documentElement.scrollTop=100000")
@@ -98,25 +101,30 @@ for page in range(page_start, page_end):
                                               f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-price > strong > i').text
             item_shop = browser.find_element(By.CSS_SELECTOR,
                                              f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-shop > span > a').text
-            csvWriter.writerow({'item_name':item_name,'item_price':item_price,'item_shop':item_shop})
+            shop_link = browser.find_element(By.CSS_SELECTOR,f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-shop > span > a').get_attribute('href')
+            item_link = browser.find_element(By.CSS_SELECTOR,f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-img > a').get_attribute('href')
+            csvWriter.writerow(
+                {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
+                 'item_link': item_link})
+            csvfile.flush()
         except:
             gui_text['text'] = f'出错：如有验证请验证。等待10秒'
-            gui_text['bg']='red'
-            gui_label_eta['text'] ='-'
-            gui_label_now['text']='-'
+            gui_text['bg'] = 'red'
+            gui_label_eta['text'] = '-'
+            gui_label_now['text'] = '-'
             winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
             time.sleep(10)
-    delay_time=random.randint(20, 50)
+    delay_time = random.randint(10, 30)
     for delay in range(delay_time):
-        gui_label_now['text']='-'
+        gui_label_now['text'] = '-'
         gui_text['bg'] = '#eeeeee'
-        gui_label_eta['text']=f'延时翻页：已延时{delay}秒，剩余{delay_time}秒'
+        gui_label_eta['text'] = f'延时翻页：已延时{delay}秒，剩余{delay_time}秒'
         time.sleep(1)
 
 print('程序结束')
-gui_text['text']='程序结束正在保存文件'
+gui_text['text'] = '程序结束正在保存文件'
 csvfile.close()
-gui_text['text']='保存文件完成，准备退出中'
+gui_text['text'] = '保存文件完成，准备退出中'
 time.sleep(5)
 browser.close()
 sys.exit()
