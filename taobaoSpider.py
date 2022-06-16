@@ -1,52 +1,153 @@
 import json
-import re
-import sys
-
-import requests
 import csv
+import sys
 import time
 import random
-from urllib import parse
+import tkinter
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from threading import Thread
+import winsound
+import re
 
-keyword=input('输入淘宝关键词:')
-keywords=parse.quote(keyword)
-pages=input('预计爬几页:')
-input_cookie=input('输入cookie')
-
-waitTime=40
+# 全局变量状态文字
+gui_text = {}
+gui_label_now = {}
+gui_label_eta = {}
 
 
-with open(f'{keyword}.csv', 'a', encoding='ANSI',newline='') as filename:
-    writer=csv.DictWriter(filename, fieldnames=['title','price','shop','shopLink'])
-    for page in range(1,int(pages)+1):
-        print(f'\n==Page{page}===')
-        url =f'https://s.taobao.com/search?q={keywords}&commend=all&ssid=s5-e&search_type' \
-             f'=item&sourceId=tb.index&spm=a21bo.jianhua.201856-taobao-item.2&ie=utf8&initiative_id=tbindexz_2017030' \
-             f'6&&s={page*44} '
-        header = {
-            'cookie':input_cookie,
-            # 'cookie':'cna=7YSbFtKkxjICAXQCtKCjC0Os; _m_h5_tk=b3d89064c1b97fce3642df0e477fd606_1653394112399; _m_h5_tk_enc=c8676b6cbd081532eb941ad678138268; _samesite_flag_=true; cookie2=198e2e96a020c87700185d7fd3778d66; t=599d9e8844d95ce58cbc4f9c3d066964; _tb_token_=57e7a5e8b0ee0; xlly_s=1; sgcookie=E100XkigyBH7Gv%2Fwf61IX%2F8xP1jA%2B2lQEPJflMPSYNOqEz32bmeCoM8xTi87tH1L%2BRotfUK0sQGg8UbcGYGhCt4Q%2BYc%2BKuWs2G7%2B047ie7dvUNg%3D; unb=2208742011542; uc3=id2=UUphwoAZvNEgGQE7Jg%3D%3D&lg2=U%2BGCWk%2F75gdr5Q%3D%3D&vt3=F8dCvC%2B02g4YEI2hQuE%3D&nk2=F5RHpxIDKL0%2BbBM%3D; csg=b7199c22; lgc=tb266433023; cancelledSubSites=empty; cookie17=UUphwoAZvNEgGQE7Jg%3D%3D; dnk=tb266433023; skt=2dcedf8a552176ff; existShop=MTY1MzM4MzczNQ%3D%3D; uc4=id4=0%40U2grGRiBh2KB7Wd14F00OHSdVmyZxRID&nk4=0%40FY4Mta35DhGjkWYmlN5izUgVBddS9w%3D%3D; tracknick=tb266433023; _cc_=W5iHLLyFfA%3D%3D; _l_g_=Ug%3D%3D; sg=32b; _nk_=tb266433023; cookie1=VqxCmqCi5fw7a7KeTor%2BeLWtj86aL8qtYk38tcQ8KZo%3D; uc1=cookie15=V32FPkk%2Fw0dUvg%3D%3D&existShop=false&cookie21=WqG3DMC9Eman&pas=0&cookie16=WqG3DMC9UpAPBHGz5QBErFxlCA%3D%3D&cookie14=UoexMSyWRvURrg%3D%3D; alitrackid=i.taobao.com; lastalitrackid=i.taobao.com; enc=STvGX6CHbOi9BoYQgneV0gpPjRx1VWThwnMjGk1cX9gj6J%2FICKGyMYiUrPeWLWFDXbxULY2u%2F2uD2iu7mWsq50kmYRKOkf8xrjR9pXkL%2F2o%3D; x5sec=7b227365617263686170703b32223a223635396538623833386431363635376639356266396139393265393566323865434a585773705147454e486b36616d742f63573161426f504d6a49774f4463304d6a41784d5455304d6a73784b414977703457436e767a2f2f2f2f2f41513d3d227d; JSESSIONID=4C866A8FBDEE80C60407F0A59A9A5EDF; tfstk=cIklBiY12bP5ELVm1LwWdGvpAVdAatAzPvkq33bqa7BnAhH44sflg1yJMn4J5U5C.; l=eBTpRKeRLmjGyAEEBOfCnurza779xIRYouPzaNbMiOCP_WCp5l6lW6fKqNT9CnGVh6UpR3R7wXp0BeYBqiVBfdW22j-laQMmn; isg=BJGRzejLlyy0Fvs4QiB5p7lyoJ0r_gVwF_NCRHMmydh3GrFsu06mQC04vO78FJ2o',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                      'application/signed-exchange;v=b3;q=0.9',
-            'referer': 'https://www.taobao.com/',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53'
-        }
-        res = requests.get(url=url, headers=header)
-        try:
-            aa = re.findall('g_page_config = (.*);', res.text)[0]
-        except:
-            print(res.text)
-            exit(400)
-        json_data = json.loads(aa)
-        aa = json_data['mods']['itemlist']['data']['auctions']
-        for index in aa:
-            dict = {'title': index['raw_title'],
-                    'price':index['view_price'],
-                    'shop':index['nick'],
-                    'shopLink':index['shopLink']}
-            writer.writerow(dict)
+# GUI函数
+def guiFunc():
+    global gui_text
+    global gui_label_now
+    global gui_label_eta
+    gui = tkinter.Tk()
+    gui.title('淘宝店铺信息爬取器 Powered by zjc')
+    gui['background'] = '#eeeeee'
+    gui.geometry("600x100-50+20")
+    gui.attributes("-topmost", 1)
+    gui_text = tkinter.Label(gui, text='初始化', font=('微软雅黑', '20'))
+    gui_text.pack()
+    gui_label_now = tkinter.Label(gui, text='?', font=('微软雅黑', '10'))
+    gui_label_now.pack()
+    gui_label_eta = tkinter.Label(gui, text='?', font=('微软雅黑', '10'))
+    gui_label_eta.pack()
+    gui.mainloop()
 
-        timesleep=random.randint(20,waitTime+1)
-        for times in range(0,timesleep):
-            print(f'\r等待:{times}\t eta:{timesleep}',end="",flush=True)
-            time.sleep(1)
+
+# GUI线程控制
+Gui_thread = Thread(target=guiFunc, daemon=True)
+Gui_thread.start()
+time.sleep(2)
+
+# 启动浏览器
+gui_text['text'] = '等待搜索关键词'
+keyword = input('输入搜索关键词:')
+gui_text['text'] = '正在启动浏览器'
+options = webdriver.ChromeOptions()
+options.add_argument("--disable-blink-features=AutomationControlled")
+browser = webdriver.Chrome(options=options)
+browser.get('https://www.taobao.com')
+
+# CSV相关
+csvfile = open(f'{keyword}_taobao_{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
+               newline='')
+csvWriter = csv.DictWriter(csvfile, fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link'])
+csvWriter.writerow(
+    {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接', 'item_link': '商品链接'})
+
+# cookie相关
+gui_text['text'] = '正在清空Cookie'
+browser.delete_all_cookies()
+gui_text['text'] = '正在注入Cookie'
+try:
+    with open('taobao.cookie', 'r') as f:
+        cookie_list = json.load(f)
+        for cookie in cookie_list:
+            browser.add_cookie(cookie)
+except:
+    print('未找到Cookie')
+gui_text['text'] = '正在刷新浏览器'
+browser.refresh()
+# 搜索词与页数获取
+gui_text['text'] = '正在操作'
+browser.get(
+    f'https://s.taobao.com/search?q={keyword}&commend=all&ssid=s5-e&search_type'
+    f'=item&sourceId=tb.index&spm=a21bo.jianhua.201856-taobao-item.2&ie=utf8&initiative_id=tbindexz_2017030'
+    f'6&&s=1 ')
+browser.implicitly_wait(10)
+taobaoPage = browser.find_element(By.CSS_SELECTOR,
+                                  '#J_relative > div.sort-row > div > div.pager > ul > li:nth-child(2)').text
+taobaoPage = re.findall('[^/]*$', taobaoPage)[0]
+# 爬取页数控制
+gui_text['text'] = '等待爬取页数'
+print(f'共计{taobaoPage}页,建议每2小时总计爬取不超过20页')
+page_start = int(input('起始页数：'))
+page_end = int(input('截止页数：')) + 1
+
+for page in range(page_start, page_end):
+    gui_text['text'] = f'当前正在获取第{page}页，还有{page_end - page_start - page}页'
+    gui_text['bg'] = '#10d269'
+    gui_label_now['text'] = '-'
+    gui_label_eta['text'] = '-'
+    browser.get(
+        f'https://s.taobao.com/search?q={keyword}&commend=all&ssid=s5-e&search_type'
+        f'=item&sourceId=tb.index&spm=a21bo.jianhua.201856-taobao-item.2&ie=utf8&initiative_id=tbindexz_2017030'
+        f'6&&s={(page - 1) * 44} ')
+    if browser.title == '验证码拦截':
+        gui_text['text'] = f'出错：如有验证请验证。等待20秒'
+        gui_text['bg'] = 'red'
+        gui_label_eta['text'] = '-'
+        gui_label_now['text'] = f'-'
+        winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
+        time.sleep(20)
+    time.sleep(5)
+    # 尝试获取商品列表
+    try:
+        gui_text['text'] = f'当前正在获取第{page}页，还有{page_end - page_start - page}页'
+        gui_text['bg'] = '#10d269'
+        goods_arr = browser.find_elements(By.CSS_SELECTOR, '#mainsrp-itemlist > div > div > div:nth-child(1)>div')
+        goods_length = len(goods_arr)
+        # 遍历商品
+        for i, goods in enumerate(goods_arr):
+            gui_label_now['text'] = f'正在获取第{i}个,共计{goods_length}个'
+            item_name = goods.find_element(By.CSS_SELECTOR,
+                                           'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-2.title>a').text
+            item_price = goods.find_element(By.CSS_SELECTOR,
+                                            'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-1.g-clearfix > div.price.g_price.g_price-highlight > strong').text
+            item_shop = goods.find_element(By.CSS_SELECTOR,
+                                           'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-3.g-clearfix > div.shop > a > span:nth-child(2)').text
+            shop_link = goods.find_element(By.CSS_SELECTOR,
+                                           'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-3.g-clearfix > div.shop > a').get_attribute(
+                'href')
+            item_link = goods.find_element(By.CSS_SELECTOR,
+                                           'div.pic-box.J_MouseEneterLeave.J_PicBox > div > div.pic>a').get_attribute(
+                'href')
+            csvWriter.writerow(
+                {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
+                 'item_link': item_link})
+            csvfile.flush()
+    except:
+        # 拉取商品列表失败则提示需要验证
+        gui_text['text'] = f'出错：如有验证请验证。等待20秒'
+        gui_text['bg'] = 'red'
+        gui_label_eta['text'] = '-'
+        gui_label_now['text'] = f'注意:第<{page}>页将跳过如需获取请重新运行程序！'
+        winsound.PlaySound('error.wav', winsound.SND_FILENAME | winsound.SND_NOWAIT)
+        time.sleep(20)
+
+    delay_time = random.randint(10, 30)
+    for delay in range(delay_time):
+        gui_label_now['text'] = '-'
+        gui_text['bg'] = '#eeeeee'
+        gui_text['text'] = f'第{page}页，还有{page_end - page_start - page}页'
+        gui_label_eta['text'] = f'延时翻页：已延时{delay}秒，剩余{delay_time}秒'
+        time.sleep(1)
+
+print('程序结束')
+gui_text['text'] = '程序结束正在保存文件'
+csvfile.close()
+gui_text['text'] = '保存文件完成，准备退出中'
+time.sleep(5)
+browser.close()
+sys.exit()

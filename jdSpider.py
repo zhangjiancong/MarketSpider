@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from threading import Thread
 import winsound
+import functions.jdSpiderDependence as jds
 
 # 全局变量状态文字
 gui_text = {}
@@ -49,9 +50,11 @@ browser.get('https://www.jd.com')
 # CSV相关
 csvfile = open(f'{keyword}-jd-{time.strftime("%Y%m%d%H%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
                newline='')
-csvWriter = csv.DictWriter(csvfile, fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link'])
+csvWriter = csv.DictWriter(csvfile,
+                           fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link', 'jdshop_id'])
 csvWriter.writerow(
-    {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接', 'item_link': '商品链接'})
+    {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接', 'item_link': '商品链接',
+     'jdshop_id': '京东店铺ID'})
 
 # cookie相关
 gui_text['text'] = '正在清空Cookie'
@@ -101,11 +104,16 @@ for page in range(page_start, page_end):
                                               f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-price > strong > i').text
             item_shop = browser.find_element(By.CSS_SELECTOR,
                                              f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-shop > span > a').text
-            shop_link = browser.find_element(By.CSS_SELECTOR,f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-shop > span > a').get_attribute('href')
-            item_link = browser.find_element(By.CSS_SELECTOR,f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-img > a').get_attribute('href')
+            shop_link = browser.find_element(By.CSS_SELECTOR,
+                                             f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-shop > span > a').get_attribute(
+                'href')
+            item_link = browser.find_element(By.CSS_SELECTOR,
+                                             f'#J_goodsList > ul > li:nth-child({i}) > div > div.p-img > a').get_attribute(
+                'href')
+            jdshop_id = jds.shop_id_get(shop_link)
             csvWriter.writerow(
                 {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
-                 'item_link': item_link})
+                 'item_link': item_link, 'jdshop_id': jdshop_id})
             csvfile.flush()
         except:
             gui_text['text'] = f'出错：如有验证请验证。等待10秒'
