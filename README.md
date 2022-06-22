@@ -15,6 +15,7 @@
 + GetCookie.py       用于自动化获取登录cookie
 + jdSpider.py        京东商城爬虫程序
 + taobaoSpider.py    淘宝网爬虫程序
++ 1688Spider.py      阿里巴巴1688爬虫程序
 + ~~pddSpider.py     拼多多爬虫程序~~(修复中，暂不可用
 + error.wav          错误提示音乐
 + \ WebDrivers       Chrome和Edge最近版本WebDriver驱动程序
@@ -22,19 +23,3 @@
 + \ functions        辅助变量、函数、对象
 
 ## 使用教程
-
-
-### taobaoSpider.py
-+ 无GUI
-+ demo版本
-+ Cookie需要从Browser获取
-### jdSpider.py
-+ 基于selenium
-+ 需要安装tkinter
-### pddSpider.py
-+ 基于selenium
-+ 需要安装tkinter
-+ 强Cookie务必现场生成
-### GetCookie.py
-Cookie生成器
-+ 基于selenium
