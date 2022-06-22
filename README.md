@@ -6,11 +6,23 @@
 > 2. 对于被爬虫网站请遵守robots协议指引爬取数据。  
 > 3. 对于不遵守以上规定的，程序编写者不承担任何责任。
 
-## 程序使用
+## 环境配置
 1. 正确安装Python3，建议安装Python3.8以上环境。
-2. （可选）建立Venv环境
+2. (可选)建立Venv环境
 3. 在终端下运行`pip install -r requirements.txt`，安装所需包。
-4. 运行爬虫程序。
+
+## 文件树
++ GetCookie.py       用于自动化获取登录cookie
++ jdSpider.py        京东商城爬虫程序
++ taobaoSpider.py    淘宝网爬虫程序
++ ~~pddSpider.py     拼多多爬虫程序~~(修复中，暂不可用
++ error.wav          错误提示音乐
++ \ WebDrivers       Chrome和Edge最近版本WebDriver驱动程序
++ \ venv             venv环境，可使用此环境直接运行
++ \ functions        辅助变量、函数、对象
+
+## 使用教程
+
 
 ### taobaoSpider.py
 + 无GUI
