@@ -6,6 +6,7 @@
 
 **拼多多请移步支线仓库 [MarketSpider-PDD](https://github.com/zhangjiancong/MarketSpider-PDD)**
 
+**2022年7月7日 清空所有commits，准备重新优化程序结构**
 > **免责声明**
 > 1. 本程序仅供用于交流学习原理使用。禁止用于商业活动或其他非法用途。
 > 2. 对于被爬虫网站请遵守robots协议指引爬取数据。
