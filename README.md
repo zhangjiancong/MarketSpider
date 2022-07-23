@@ -1,10 +1,10 @@
 # MarketSpider
 
 [![OSCS Status](https://www.oscs1024.com/platform/badge/zhangjiancong/MarketSpider.svg?size=small)](https://www.oscs1024.com/project/zhangjiancong/MarketSpider?ref=badge_small)  
-淘宝、京东、拼多多、1688信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
+淘宝、京东、拼多多、1688、京喜信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
 不是专业程序员，仅为Python和web自动化爱好者，欢迎提供建议和程序改进！
 
-**拼多多请移步支线仓库 [MarketSpider-PDD](https://github.com/zhangjiancong/MarketSpider-PDD)**
+
 
 **2022年7月7日 清空所有commits，准备重新优化程序结构**
 > **免责声明**
@@ -37,17 +37,21 @@
 详细的指引可以参阅Selenium的Webdriver文档，[点击此处跳转](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/)
 #### 3、启动对应程序开始使用
 
+## 拼多多、京喜平台特别说明
+拼多多、京喜平台因技术原因，使用半自动化方案，手动保存浏览器的请求，使用对应程序进行读取并保存成为CSV文件。无需使用Selenium环境。如何获取HAR文件可至[HAR文件获取](/docs/get_har.md)
 ## 文件结构
 
-| 文件名             | 备注              |
-|-----------------|-----------------|
-| \ functions     | 自定义包            |
-| GetCookie.py    | 用于自动化获取登录cookie |
-| jdSpider.py     | 京东商城爬虫程序        |
-| taobaoSpider.py | 淘宝网爬虫程序         |
-| 1688Spider.py   | 阿里巴巴1688爬虫程序    |
-| error.wav       | 错误提示音乐          |
-| requirements.txt | pip依赖列表         |
+| 文件名                  | 备注              |
+|----------------------|-----------------|
+| \ functions          | 自定义包            |
+| GetCookie.py         | 用于自动化获取登录cookie |
+| jdSpider.py          | 京东商城爬虫程序        |
+| taobaoSpider.py      | 淘宝网爬虫程序         |
+| 1688Spider.py        | 阿里巴巴1688爬虫程序    |
+| error.wav            | 错误提示音乐          |
+| requirements.txt     | pip依赖列表         |
+| jingxi_HAR_reader.py | 京喜HAR读取程序       |
+| pdd_HAR_reader.py    | 拼多多HAR读取程序      |
 
 
 ## 使用教程

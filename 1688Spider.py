@@ -81,7 +81,7 @@ logger.info(f'get keyword={keywords}')
 browser = browserObj()
 spider = Spider(keywords)
 
-spider.init_csv_file()
+spider.init_csv_file('1688',['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link'],{'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接', 'item_link': '商品链接'})
 write_statue('启动浏览器中')
 browser.navi_to('https://s.1688.com/selloffer/offer_search.htm')
 write_statue('尝试添加Cookie')
