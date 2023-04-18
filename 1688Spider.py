@@ -13,7 +13,8 @@ def mknewdir(dirname):
         nowdir=os.getcwd()
         os.mkdir(nowdir+f'\\{dirname}')
 
-
+VERSION='1.0'
+print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
 
 
 logger = logging.getLogger(__name__)
