@@ -9,7 +9,8 @@ from selenium.webdriver.common.by import By
 from threading import Thread
 from playsound import playsound
 import functions.jdSpiderDependence as jds
-
+VERSION='1.0'
+print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
 # 全局变量状态文字
 gui_text = {}
 gui_label_now = {}

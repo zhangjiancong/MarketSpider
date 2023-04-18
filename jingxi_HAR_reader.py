@@ -5,7 +5,8 @@ import tkinter
 from tkinter import filedialog
 import time
 
-
+VERSION='1.0'
+print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
 
 def open_file_dialog(title='请打开HAR文件'):
     filePath = tkinter.filedialog.askopenfilename(title=title)
@@ -29,7 +30,7 @@ csv_writer = csv.DictWriter(csv_file,
                             fieldnames=['item_id', 'item_url', 'item_name', 'item_pic', 'item_price', 'item_sales',
                                         'shop_url', 'shop_name'])
 csv_writer.writerow(
-    {'item_id': '商品ID', 'item_url': '商品链接', 'item_name': '商品名称', 'item_pic': '商品图片', 'item_price': '商品价格',
+    {'item_id': '商品ID', 'item_url': '商品链接', 'item_name': '商品名', 'item_pic': '商品图片', 'item_price': '商品价格',
      'item_sales': '商品销量', 'shop_url': '店铺链接', 'shop_name': '店铺名称'})
 csv_file.flush()
 
