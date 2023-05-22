@@ -1,10 +1,13 @@
 # MarketSpider
 
-[![OSCS Status](https://www.oscs1024.com/platform/badge/zhangjiancong/MarketSpider.svg?size=small)](https://www.oscs1024.com/project/zhangjiancong/MarketSpider?ref=badge_small)  
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Percentage of issues still open")
+
+[![Security Status](https://www.murphysec.com/platform3/v31/badge/1669190536986910720.svg)](https://www.murphysec.com/console/report/1669190536949161984/1669190536986910720)
+
 淘宝、京东、拼多多、1688、京喜信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
 不是专业程序员，仅为Python和web自动化爱好者，欢迎提供建议和程序改进！
 
-**📢 2023年4月18日 淘宝貌似灰度上线了新版UI，程序代码很乱但是新版UI和旧版都能用，等淘宝彻底切换完重构那个文件**
 
 > **免责声明**
 > 1. 本程序仅供用于交流学习原理使用。禁止用于商业活动或其他非法用途。
@@ -25,7 +28,7 @@
 
 通过使用WebDriver，Selenium可以操作市场上主流浏览器。通过以下链接可以前往下载站点。下载后将其放置在本程序文件夹内即可。  
 注意需要使用与您浏览器安装版本相对应的WebDriver。  
-[Google Chrome](https://chromedriver.storage.googleapis.com/index.html) |
+[Google Chrome](https://chromedriver.chromium.org/downloads) |
 [MS Edge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) |
 [Selenium-Install Drivers指引](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/)  
 程序默认使用Google Chrome浏览器，如果您需要使用其他浏览器，请按照下方指引更改代码。
@@ -45,7 +48,7 @@
 | \ functions          |                        | 自定义包            |
 | GetCookie.py         | **1.1** <br> 2023-4-18 | 用于自动化获取登录cookie |
 | jdSpider.py          | **1.0** <br> 2022-7-28 | 京东商城爬虫程序        |
-| taobaoSpider.py      | **1.1** <br> 2023-4-18 | 淘宝网爬虫程序         |
+| taobaoSpider.py      | **1.2** <br> 2024-4-22 | 淘宝网爬虫程序         |
 | 1688Spider.py        | **1.0** <br> 2022-7-28 | 阿里巴巴1688爬虫程序    |
 | error.wav            |                        | 错误提示音乐          |
 | requirements.txt     |                        | pip依赖列表         |

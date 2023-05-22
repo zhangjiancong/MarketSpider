@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from threading import Thread
 from playsound import playsound
 import re
+import traceback
 
 VERSION='1.1'
 print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
@@ -63,10 +64,10 @@ gui_text['background'] = '#ffffff'
 csvfile = open(f'{keyword}_taobao_{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
                newline='')
 csvWriter = csv.DictWriter(csvfile,
-                           fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link', 'bridge'])
+                           fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link', 'bridge','item_paid'])
 csvWriter.writerow(
     {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接',
-     'item_link': '商品链接', 'bridge': '店铺id桥'})
+     'item_link': '商品链接', 'bridge': '店铺id桥','item_paid':'付款人数(参考销量)'})
 
 # cookie相关
 gui_text['text'] = '正在清空Cookie'
@@ -81,8 +82,6 @@ except:
     print('未找到Cookie')
 gui_text['text'] = '正在刷新浏览器'
 browser.refresh()
-gui_text['text'] = '淘宝新政策，登录cookie可能失效\n可在此进行手动登录，延时10秒'
-time.sleep(10)
 # 搜索词与页数获取
 gui_text['text'] = '正在操作'
 browser.get(f'https://s.taobao.com/search?q={keyword}')
@@ -113,13 +112,7 @@ for page in range(page_start, page_end):
     gui_text['bg'] = '#10d269'
     gui_label_now['text'] = '-'
     gui_label_eta['text'] = '-'
-    if(tbPageVersion==0):
-        browser.get(
-        f'https://s.taobao.com/search?q={keyword}&commend=all&ssid=s5-e&search_type'
-        f'=item&sourceId=tb.index&spm=a21bo.jianhua.201856-taobao-item.2&ie=utf8&initiative_id=tbindexz_2017030'
-        f'6&&s={(page - 1) * 44} ')
-    if(tbPageVersion==1):
-        browser.get(f'https://s.taobao.com/search?q={keyword}&page={page}')
+    browser.get(f'https://s.taobao.com/search?q={keyword}&page={page}&_input_charset=utf-8&commend=all&search_type=item&source=suggest&sourceId=tb.index')
     if browser.title == '验证码拦截':
         gui_text['text'] = f'出错：如有验证请验证。等待20秒'
         gui_text['bg'] = 'red'
@@ -132,65 +125,41 @@ for page in range(page_start, page_end):
     try:
         gui_text['text'] = f'当前正在获取第{page}页，还有{page_end - page_start - page}页'
         gui_text['bg'] = '#10d269'
-
-        if tbPageVersion==0:
-            print('using classic version selector')
-            goods_arr = browser.find_elements(By.CSS_SELECTOR, '#mainsrp-itemlist > div > div > div:nth-child(1)>div')
-            goods_length = len(goods_arr)
-            # 遍历商品
-            for i, goods in enumerate(goods_arr):
-                gui_label_now['text'] = f'正在获取第{i}个,共计{goods_length}个'
-                item_name = goods.find_element(By.CSS_SELECTOR,
-                                               'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-2.title>a').text
-                item_price = goods.find_element(By.CSS_SELECTOR,
-                                                'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-1.g-clearfix > div.price.g_price.g_price-highlight > strong').text
-                item_shop = goods.find_element(By.CSS_SELECTOR,
-                                               'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-3.g-clearfix > div.shop > a > span:nth-child(2)').text
-                shop_link = goods.find_element(By.CSS_SELECTOR,
-                                               'div.ctx-box.J_MouseEneterLeave.J_IconMoreNew > div.row.row-3.g-clearfix > div.shop > a').get_attribute(
-                    'href')
-                item_link = goods.find_element(By.CSS_SELECTOR,
-                                               'div.pic-box.J_MouseEneterLeave.J_PicBox > div > div.pic>a').get_attribute(
-                    'href')
-                try:
-                    b = shop_link.split('https://store.taobao.com/shop/view_shop.htm?user_number_id=')[1]
-                except:
-                    b = shop_link
-                csvWriter.writerow(
-                    {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
-                     'item_link': item_link, 'bridge': b})
-                csvfile.flush()
-        if tbPageVersion==1:
-            print('using new version selector')
-            goods_arr = browser.find_elements(By.CSS_SELECTOR, '#root > div > div:nth-child(2) > div.PageContent--contentWrap--mep7AEm > div.LeftLay--leftWrap--xBQipVc > div.LeftLay--leftContent--AMmPNfB > div.Content--content--sgSCZ12 > div>div')
-            goods_length = len(goods_arr)
-            for i, goods in enumerate(goods_arr):
+        goods_arr = browser.find_elements(By.CSS_SELECTOR, '#pageContent > div:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div>div')
+        goods_length = len(goods_arr)
+        for i, goods in enumerate(goods_arr):
+            try:
                 i=i+1
+                browser.execute_script("document.documentElement.scrollTop=1000")
                 gui_label_now['text'] = f'正在获取第{i}个,共计{goods_length}个'
                 item_name = goods.find_element(By.CSS_SELECTOR,
-                                   f'div:nth-child({i})>a>div > div.Card--mainPicAndDesc--wvcDXaK > div.Title--descWrapper--HqxzYq0 > div > span').text
-                item_price_int = goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div > div.Card--mainPicAndDesc--wvcDXaK > div.Price--priceWrapper--Q0Dn7pN > span.Price--priceInt--ZlsSi_M').text
-                item_price_float=goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div> div.Card--mainPicAndDesc--wvcDXaK > div.Price--priceWrapper--Q0Dn7pN > span.Price--priceFloat--h2RR0RK').text
-                item_price=item_price_int+item_price_float
+                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(2) > div > span').text
+                item_price= goods.find_element(By.CSS_SELECTOR,
+                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(4) > div').text
                 item_shop = goods.find_element(By.CSS_SELECTOR,
-                                   f'div:nth-child({i})>a>div> div.ShopInfo--shopInfo--ORFs6rK  > div>a').text
+                                    f'div:nth-child({i})>a>div> div:nth-child(3) > div>a').text
                 shop_link = goods.find_element(By.CSS_SELECTOR,
-                                   f'div:nth-child({i})>a>div> div.ShopInfo--shopInfo--ORFs6rK  > div>a').get_attribute(
+                                    f'div:nth-child({i})>a>div> div:nth-child(3) > div>a').get_attribute(
         'href')
                 item_link = goods.find_element(By.CSS_SELECTOR,
-                                   f'div:nth-child({i})>a').get_attribute(
+                                    f'div:nth-child({i})>a').get_attribute(
         'href')
+                item_paid=goods.find_element(By.CSS_SELECTOR,
+                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(4) > span.Price--realSales--FhTZc7U').text
                 try:
-                    b = shop_link.split('https://store.taobao.com/shop/view_shop.htm?user_number_id=')[1]
+                    b = shop_link.split('https://store.taobao.com/shop/view_shop.htm?appUid=')[1]
                 except:
                     b = shop_link
                 csvWriter.writerow(
                     {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
-                     'item_link': item_link, 'bridge': b})
+                        'item_link': item_link, 'bridge': b,'item_paid':item_paid})
                 csvfile.flush()
-    except:
+            except:
+                print(f'第{i}个商品获取信息出错,跳过')
+                traceback.print_exc()
+    except Exception as e:
+        print(f'在遍历商品时出错{e}')
+        traceback.print_exc()
         # 拉取商品列表失败则提示需要验证
         gui_text['text'] = f'出错：如有验证请验证。等待20秒'
         gui_text['bg'] = 'red'
