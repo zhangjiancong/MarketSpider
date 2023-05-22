@@ -7,6 +7,7 @@ import time
 VERSION='1.0'
 print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
 print('\n该程序暂时无法存储第一页的商品\n')
+print('拼多多网页版链接:https://mobile.yangkeduo.com/')
 
 def open_file_dialog(title='请打开HAR文件'):
     filePath = tkinter.filedialog.askopenfilename(title=title)
