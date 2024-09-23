@@ -1,3 +1,4 @@
+# V1.1
 import json
 import time
 VERSION='1.1'
@@ -9,21 +10,24 @@ print('\n输入数字打开网站\n0>淘宝\t1>京东\t2>拼多多(仅支持手�
 user=int(input())
 print('请在稍后打开的窗口中登录,限时60秒')
 time.sleep(3)
-from selenium import webdriver
-options = webdriver.ChromeOptions()
-options.add_argument("--disable-blink-features=AutomationControlled")
-driver=webdriver.Chrome(options=options)
-driver.get(url[user])
-print('请登录，请在60秒内完成！')
-for delaytime in range(0,61):
-    print(f'\r已等待:{delaytime}\t eta:{60-delaytime}', end="", flush=True)
-    time.sleep(1)
-with open(f'{filename[user]}.cookie','w') as file:
-    if user==0:
-        file.write(json.dumps(driver.get_cookies()))
-    if user!=0:
-        file.write(json.dumps(driver.get_cookies()))
-driver.close()
-driver.quit()
-print('\nCookie已保存')
-time.sleep(5)
+try:
+    from selenium import webdriver
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    driver=webdriver.Chrome(options=options)
+    driver.get(url[user])
+    print('请登录，请在60秒内完成！')
+    for delaytime in range(0,61):
+        print(f'\r已等待:{delaytime}\t eta:{60-delaytime}', end="", flush=True)
+        time.sleep(1)
+    with open(f'cookie\\{filename[user]}.cookie','w') as file:
+        if user==0:
+            file.write(json.dumps(driver.get_cookies()))
+        if user!=0:
+            file.write(json.dumps(driver.get_cookies()))
+    driver.close()
+    driver.quit()
+    print('\nCookie已保存')
+    time.sleep(5)
+except Exception as e:
+    print(e)
