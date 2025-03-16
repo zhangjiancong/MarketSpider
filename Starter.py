@@ -58,7 +58,8 @@ def create_configFile():
 
 
 def scan_all_cookie():
-    os.mkdir("cookie")
+    if not os.path.exists("cookie"):
+        os.mkdir("cookie")
     cookie = os.listdir("cookie")
     return cookie
 
@@ -83,7 +84,7 @@ while runtime_check():
     print("  1   修复 [运行依赖]")
     print("  2   修复 [配置文件]")
     print("\n\n")
-    match input("输入数字执行对应修复"):
+    match input("输入数字执行对应修复:"):
         case "1":
             fix_requirements()
         case "2":
