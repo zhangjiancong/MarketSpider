@@ -1,0 +1,12 @@
+{
+    "description":"版本文件,notification用于打开更新时的公告",
+    "notification":"",
+    "Core":"2.0-beta",
+    "GetCookie":"2.0",
+    "Update":"1.0",
+    "Spider_taobao":"1.1",
+    "Spider_jd":"1.0",
+    "Spider_1688":"1.0",
+    "HarReader_jingxi":"1.0",
+    "HarReader_pdd":"1.0"
+}
