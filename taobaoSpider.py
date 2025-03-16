@@ -1,15 +1,19 @@
+# V1.1
 import json
 import csv
 import sys
 import time
 import random
 import tkinter
+from tkinter import messagebox
+from tkinter.simpledialog import askinteger, askfloat, askstring
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from threading import Thread
 from playsound import playsound
 import re
 import traceback
+import Core
 
 VERSION='1.1'
 print(f'程序版本{VERSION}\n最新程序下载地址:https://github.com/zhangjiancong/MarketSpider')
@@ -19,8 +23,7 @@ gui_text = {}
 gui_label_now = {}
 gui_label_eta = {}
 
-# 淘宝页面版本 0旧 1新
-tbPageVersion = 0
+
 
 
 # GUI函数
@@ -56,48 +59,54 @@ gui_text['text'] = '正在启动浏览器'
 options = webdriver.ChromeOptions()
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-browser = webdriver.Chrome(options=options)
-browser.get('https://www.taobao.com')
+try:
+    browser = webdriver.Chrome(options=options)
+    browser.get('https://www.taobao.com')
+except Exception as es:
+    lll=Core.Logger('taobao')
+    lll.write_error('selenium 出错',True)
 gui_text['background'] = '#ffffff'
 
 # CSV相关
-csvfile = open(f'{keyword}_taobao_{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
+csvfile = open(f'result//{keyword}_taobao_{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.csv', 'a', encoding='utf-8-sig',
                newline='')
 csvWriter = csv.DictWriter(csvfile,
-                           fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link', 'bridge','item_paid'])
+                           fieldnames=['item_name', 'item_price', 'item_shop', 'shop_link', 'item_link','item_paid'])
 csvWriter.writerow(
     {'item_name': '商品名', 'item_price': '商品价格', 'item_shop': '店铺名称', 'shop_link': '店铺链接',
-     'item_link': '商品链接', 'bridge': '店铺id桥','item_paid':'付款人数(参考销量)'})
+     'item_link': '商品链接','item_paid':'付款人数(参考销量)'})
 
 # cookie相关
 gui_text['text'] = '正在清空Cookie'
 browser.delete_all_cookies()
 gui_text['text'] = '正在注入Cookie'
 try:
-    with open('taobao.cookie', 'r') as f:
+    with open('cookie/taobao.cookie', 'r') as f:
         cookie_list = json.load(f)
         for cookie in cookie_list:
             browser.add_cookie(cookie)
-except:
-    print('未找到Cookie')
+except Exception as e:
+    print('读取Cookie异常')
+    print(e)
+    traceback.print_exc()
+    print('-----读取Cookie异常-----')
 gui_text['text'] = '正在刷新浏览器'
 browser.refresh()
 # 搜索词与页数获取
 gui_text['text'] = '正在操作'
 browser.get(f'https://s.taobao.com/search?q={keyword}')
 browser.implicitly_wait(10)
+
+
+# 2024-09-20
 try:
-    # 老版PC淘宝页面
-    taobaoPage = browser.find_element(By.CSS_SELECTOR,
-                                      '#J_relative > div.sort-row > div > div.pager > ul > li:nth-child(2)').text
+    taobaoPage=browser.find_element(By.CSS_SELECTOR,'#search-content-leftWrap > div.leftContent--BdYLMbH8 > div.pgWrap--RTFKoWa6 > div > div > span.next-pagination-display').text
     taobaoPage = re.findall('[^/]*$', taobaoPage)[0]
-    tbPageVersion = 0
-except:
-    # 新版PC淘宝页面
-    taobaoPage = browser.find_element(By.CSS_SELECTOR,
-                                      '#sortBarWrap > div.SortBar--sortBarWrapTop--VgqKGi6 > div.SortBar--otherSelector--AGGxGw3 > div:nth-child(2) > div.next-pagination.next-small.next-simple.next-no-border > div > span').text
-    taobaoPage = re.findall('[^/]*$', taobaoPage)[0]
-    tbPageVersion = 1
+except Exception as e:
+    taobaoPage=1
+    print('get taobao page error')
+
+
 
 # 爬取页数控制
 gui_text['text'] = '☞等待爬取页数'
@@ -122,37 +131,34 @@ for page in range(page_start, page_end):
         time.sleep(20)
     time.sleep(5)
     # 尝试获取商品列表
+    # 翻页获取页面全部内容
+    for l in range(5):
+        print("scroll"+str(l))
+        browser.execute_script(f"document.documentElement.scrollTop={1000*l}")
+        time.sleep(2)
     try:
         gui_text['text'] = f'当前正在获取第{page}页，还有{page_end - page_start - page}页'
         gui_text['bg'] = '#10d269'
-        goods_arr = browser.find_elements(By.CSS_SELECTOR, '#pageContent > div:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div>div')
+        goods_arr = browser.find_elements(By.CSS_SELECTOR, "#search-content-leftWrap > div.leftContent--BdYLMbH8 > div.content--CUnfXXxv > div>a")
         goods_length = len(goods_arr)
         for i, goods in enumerate(goods_arr):
             try:
                 i=i+1
-                browser.execute_script("document.documentElement.scrollTop=1000")
                 gui_label_now['text'] = f'正在获取第{i}个,共计{goods_length}个'
                 item_name = goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(2) > div > span').text
+                                    f'a>div>div:nth-child(1)>div:nth-child(2)').text
                 item_price= goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(4) > div').text
+                                    f' a > div > div.mainPicAndDesc--J1VxStVr > div.priceWrapper--UVzyZFoG > div:nth-child(2)').text
                 item_shop = goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div> div:nth-child(3) > div>a').text
+                                    f'a>div>div:nth-child(3)>div:nth-child(1)').text
                 shop_link = goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div> div:nth-child(3) > div>a').get_attribute(
-        'href')
-                item_link = goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a').get_attribute(
-        'href')
+                                    f'a>div>div:nth-child(3)>div:nth-child(1)>a').get_attribute('href')
+                item_link = goods.get_attribute('href')
                 item_paid=goods.find_element(By.CSS_SELECTOR,
-                                    f'div:nth-child({i})>a>div > div:nth-child(1) > div:nth-child(4) > span.Price--realSales--FhTZc7U').text
-                try:
-                    b = shop_link.split('https://store.taobao.com/shop/view_shop.htm?appUid=')[1]
-                except:
-                    b = shop_link
+                                    f'a>div>div:nth-child(1)>div.priceWrapper--UVzyZFoG>span.realSales--nOat6VGM').text
                 csvWriter.writerow(
-                    {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop, 'shop_link': shop_link,
-                        'item_link': item_link, 'bridge': b,'item_paid':item_paid})
+                    {'item_name': item_name, 'item_price': item_price, 'item_shop': item_shop,'shop_link':shop_link,
+                        'item_link': item_link, 'item_paid':item_paid})
                 csvfile.flush()
             except:
                 print(f'第{i}个商品获取信息出错,跳过')

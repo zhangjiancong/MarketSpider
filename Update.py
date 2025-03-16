@@ -15,11 +15,13 @@ statusInfo = {"text": "", "progress": ""}
 app = ""
 
 
+
 def gui_func():
     global tableConfig
     global statusInfo
     global app
     app = tk.Tk()
+
     app.title("MarketSpider Updater")
     tk.Label(app, text="MarketSpider 更新程序", font=("Arial", 18)).pack()
     tk.Label(app, text="更新程序仅从main分支获取,如需其他文件请前往项目页面.").pack()
@@ -151,6 +153,7 @@ def get_local_version():
     time.sleep(5)
     for c in tableConfig:
         try:
+
             f = open(f"{c['comp']}.py", "r", encoding="utf8")
             g = f.readline().replace("# V", "").replace("\n", "")
             c["local"]["text"] = g
@@ -159,25 +162,30 @@ def get_local_version():
             c["local"]["text"] = "获取失败"
 
 
+
 def update_handler(target):
     global tableConfig
     global statusInfo
     global app
+
     url = "https://zhangjiancong.github.io/MarketSpider/" + target + ".py"
     with closing(requests.get(url, stream=True)) as response:
         global statusInfo
         total = int(response.headers["Content-Length"])  # 内容体总大小
         done = 0
         with open(target + ".py", "wb") as file:
+
             for data in response.iter_content():
                 file.write(data)
                 done = done + len(data)
                 donePercent = int(done / total * 100)
+
                 statusInfo["progress"]["value"] = donePercent
                 statusInfo["text"]["text"] = f"{target}正在更新...{donePercent}%"
                 app.update()
     statusInfo["text"]["text"] = f"更新{target}成功"
     showinfo("更新成功 - MarketSpider 更新程序", f"更新{target}成功,重新启动后生效.")
+
 
 
 Thread(target=get_remote_version, daemon=True).start()
