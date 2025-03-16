@@ -4,16 +4,15 @@ import os
 import time
 import tkinter as tk
 from tkinter import Variable, ttk
-from tkinter.messagebox import showinfo,showerror
+from tkinter.messagebox import showinfo, showerror
 import json
 import requests
-from threading import Thread
+from threading import Thread, local
 from contextlib import closing
 
 tableConfig = []
 statusInfo = {"text": "", "progress": ""}
 app = ""
-
 
 
 def gui_func():
@@ -84,6 +83,13 @@ def gui_func():
             "local": 1,
             "remote": 1,
         },
+        {
+            "comp": "Starter",
+            "description": "启动器",
+            "row": 10,
+            "local": 1,
+            "remote": 1,
+        },
     ]
 
     for c in tableConfig:
@@ -93,8 +99,8 @@ def gui_func():
         )
         c["local"] = tk.Label(versionTable, text="正在获取...")
         c["local"].grid(column=2, row=c["row"], padx=6)
-        c['var_remote']=Variable()
-        c["remote"] = tk.Label(versionTable, textvariable=c['var_remote'])
+        c["var_remote"] = Variable()
+        c["remote"] = tk.Label(versionTable, textvariable=c["var_remote"])
         c["remote"].grid(column=3, row=c["row"], padx=6)
         tk.Button(
             versionTable,
@@ -122,30 +128,33 @@ def gui_func():
     app.mainloop()
 
 
-
-
-
 def get_remote_version():
     global tableConfig
     try:
         get_release_version = requests.get(
-            "https://zhangjiancong.github.io/MarketSpider/pages/version.json", timeout=10
+            "https://zhangjiancong.github.io/MarketSpider/pages/version.json",
+            timeout=10,
         )
         if get_release_version.status_code == 200:
             version_remote = get_release_version.json()
-            if version_remote['notification']!='':
-                showinfo("通知 - MarketSpider 更新程序", version_remote['notification'])
+            if version_remote["notification"] != "":
+                showinfo("通知 - MarketSpider 更新程序", version_remote["notification"])
             for index in version_remote:
                 for comp in tableConfig:
                     if comp["comp"] == index:
                         comp["var_remote"].set(version_remote[index])
                         break
-            
-        else:
-            showerror("获取失败 - MarketSpider 更新程序", f"获取远程版本信息失败.请稍后再试.\nerr:network{get_release_version.status_code}")
-    except:
-        showerror("获取失败 - MarketSpider 更新程序", f"获取远程版本信息失败.\n网络超时,请稍后再试.\nerr:fail to connect to github")
 
+        else:
+            showerror(
+                "获取失败 - MarketSpider 更新程序",
+                f"获取远程版本信息失败.请稍后再试.\nerr:network{get_release_version.status_code}",
+            )
+    except:
+        showerror(
+            "获取失败 - MarketSpider 更新程序",
+            f"获取远程版本信息失败.\n网络超时,请稍后再试.\nerr:fail to connect to github",
+        )
 
 
 def get_local_version():
@@ -160,7 +169,6 @@ def get_local_version():
         except Exception as e:
             print(e)
             c["local"]["text"] = "获取失败"
-
 
 
 def update_handler(target):
@@ -185,7 +193,6 @@ def update_handler(target):
                 app.update()
     statusInfo["text"]["text"] = f"更新{target}成功"
     showinfo("更新成功 - MarketSpider 更新程序", f"更新{target}成功,重新启动后生效.")
-
 
 
 Thread(target=get_remote_version, daemon=True).start()
