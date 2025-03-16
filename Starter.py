@@ -58,6 +58,7 @@ def create_configFile():
 
 
 def scan_all_cookie():
+    os.mkdir("cookie")
     cookie = os.listdir("cookie")
     return cookie
 
