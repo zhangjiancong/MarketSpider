@@ -1,4 +1,4 @@
-# V1.0
+# V1.1
 import functools
 import os
 import time
@@ -143,7 +143,7 @@ def get_remote_version():
             for index in version_remote:
                 for comp in tableConfig:
                     if comp["comp"] == index:
-                        comp["var_remote"].set(version_remote[index])
+                        comp["var_remote"].set(version_remote[index]['version'])
                         break
 
         else:

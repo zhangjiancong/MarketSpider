@@ -1,13 +1,49 @@
 {
-    "description":"版本文件,notification用于打开更新时的公告",
-    "notification":"",
-    "Core":"2.0-beta",
-    "GetCookie":"2.0",
-    "Update":"1.0",
-    "Starter":"1.0",
-    "Spider_taobao":"1.1",
-    "Spider_jd":"1.0",
-    "Spider_1688":"1.0",
-    "HarReader_jingxi":"1.0",
-    "HarReader_pdd":"1.0"
+    "description": "版本文件,notification用于打开更新时的公告",
+    "notification": "",
+    "Core": {
+        "version": "2.0-beta1",
+        "time": "2025-03-18",
+        "instruction": "测试发布,该组件接口尚未稳定."
+    },
+    "GetCookie": {
+        "version": "2.0",
+        "time": "2025-03-18",
+        "instruction": ""
+    },
+    "Update": {
+        "version": "1.1",
+        "time": "2025-03-18",
+        "instruction": ""
+    },
+    "Starter": {
+        "version": "1.0",
+        "time": "2025-03-16",
+        "instruction": ""
+    },
+    "Spider_taobao": {
+        "version": "1.1",
+        "time": "2024-04-22",
+        "instruction": ""
+    },
+    "Spider_jd": {
+        "version": "2.0.0",
+        "time": "2025-03-18",
+        "instruction": "V2.0.0正式版"
+    },
+    "Spider_1688": {
+        "version": "1.0",
+        "time": "2022-07-28",
+        "instruction": ""
+    },
+    "HarReader_jingxi": {
+        "version": "1.0",
+        "time": "2022-07-28",
+        "instruction": ""
+    },
+    "HarReader_pdd": {
+        "version": "1.0",
+        "time": "2022-07-28",
+        "instruction": ""
+    }
 }
