@@ -1,9 +1,8 @@
 # MarketSpider
+![Python Version >3.8](https://img.shields.io/badge/Python-%3E3.8-blue)
 
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Percentage of issues still open")
-
-[![Security Status](https://www.murphysec.com/platform3/v31/badge/1669190536986910720.svg)](https://www.murphysec.com/console/report/1669190536949161984/1669190536986910720)
 
 淘宝、京东、拼多多、1688、京喜信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
 不是专业程序员，仅为Python和web自动化爱好者，欢迎提供建议和程序改进！
@@ -13,16 +12,18 @@
 > 1. 本程序仅供用于交流学习原理使用。禁止用于商业活动或其他非法用途。
 > 2. 对于被爬虫网站请遵守robots协议指引爬取数据。
 > 3. 对于不遵守以上规定的，程序编写者不承担任何责任。
+> 4. 因使用本程序造成的账户封禁、限制，程序编写者不承担任何责任。  
+> 如您不认可以上免责声明，请不要使用本程序。
 
 
 
 ## 快速指引
-
-#### 1、Python与Python包配置
+完整使用教程请您前往:
+[Github Wiki](https://github.com/zhangjiancong/MarketSpider/wiki)
+#### 1、Python配置
 
 1. 正确安装Python3，建议安装Python3.8以上环境。
 2. (可选)建立Venv环境
-3. 在终端下运行`pip install -r requirements.txt`，安装所需包。
 
 #### 2、WebDriver配置
 
@@ -31,30 +32,32 @@
 [Google Chrome](https://chromedriver.chromium.org/downloads) |
 [MS Edge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) |
 [Selenium-Install Drivers指引](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/)  
-程序默认使用Google Chrome浏览器，如果您需要使用其他浏览器，请按照下方指引更改代码。
-
-+ 程序文件中的`options = webdriver.ChromeOptions()`更改为对应浏览器，如Edge则更改为`options = webdriver.EdgeOptions()`
-+ 程序文件中的`driver=webdriver.Chrome(options=options)`更改为对应浏览器，如Edge则更改为`driver=webdriver.Edge(options=options)`
-
 详细的指引可以参阅Selenium的Webdriver文档，[点击此处跳转](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/)
+
 #### 3、启动对应程序开始使用
+`Starter.py`是一个友好的启动器工具.使用此工具帮助您快速进行首次运行配置,及各程序启动.
 
 ## 拼多多、京喜平台特别说明
 拼多多、京喜平台因技术原因，使用半自动化方案，手动保存浏览器的请求，使用对应程序进行读取并保存成为CSV文件。无需使用Selenium环境。如何获取HAR文件可至[HAR文件获取](https://github.com/zhangjiancong/MarketSpider/wiki)
 
+## 用户隐私说明
++ 程序本身没有上传数据的代码和功能。
++ 程序使用者(您)是隐私数据保护的第一人,您应保护您的计算机不受病毒、木马程序感染，连接安全可信任的网络，保护您计算机上的文件安全性。
++ 程序运行时会保存网站Cookie、LocalStorage、SessionStorage数据到`cookie`文件夹,这些数据可能包含您的商城账户名称、电话、邮箱、历史购买记录、历史搜索记录、历史登录记录等信息,其种类、加密情况与商城网站有关，与本程序无关。
++ 为了方便异常分析，程序将保存一些日志信息到`Logs`。日志信息可能包含但不限于您的搜索关键词、浏览器名称、浏览器版本等信息。在过往实践中发现可能包含您的操作系统用户名等信息。在您提交Issue或将日志交由其他人分析时，注意此情况。
+
 ## 文件功能和最新版本
+版本号定义:[主版本].[程序版本].[选择器版本]
 | 文件名                  | 最新版本和发布时间                    | 用途              |
 |----------------------|------------------------------|-----------------|
 | Core.py              | **2.0-beta** <br> 2024-08-13 | 核心库             |
-| GetCookie.py         | **1.1** <br> 2023-4-18       | 用于自动化获取登录cookie |
-| jdSpider.py          | **1.0** <br> 2022-7-28       | 京东商城爬虫程序        |
-| taobaoSpider.py      | **1.2** <br> 2024-4-22       | 淘宝网爬虫程序         |
-| 1688Spider.py        | **1.0** <br> 2022-7-28       | 阿里巴巴1688爬虫程序    |
+| Update.py            | **1.0** <br> 2025-03-16      | 版本更新工具          |
+| Starter.py            | **1.0** <br> 2025-03-16      | 程序启动器          |
+| GetCookie.py         | **2.0** <br> 2025-03-18       | 用于自动化获取登录cookie |
+| Spider_jd.py          | **2.0.0** <br> 2025-03-18       | 京东商城爬虫程序        |
+| taobaoSpider.py      | **1.2** <br> 2024-04-22       | 淘宝网爬虫程序         |
+| 1688Spider.py        | **1.0** <br> 2022-07-28       | 阿里巴巴1688爬虫程序    |
 | error.wav            |                              | 错误提示音乐          |
 | requirements.txt     |                              | pip依赖列表         |
-| jingxi_HAR_reader.py | **1.0** <br> 2022-7-28       | 京喜HAR读取程序       |
-| pdd_HAR_reader.py    | **1.0** <br> 2022-7-28       | 拼多多HAR读取程序      |
-
-
-## 使用教程
-[Github Wiki](https://github.com/zhangjiancong/MarketSpider/wiki)
+| jingxi_HAR_reader.py | **1.0** <br> 2022-07-28       | 京喜HAR读取程序       |
+| pdd_HAR_reader.py    | **1.0** <br> 2022-07-28       | 拼多多HAR读取程序      |
