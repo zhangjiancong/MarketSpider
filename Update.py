@@ -50,7 +50,7 @@ def gui_func():
             "remote": 1,
         },
         {
-            "comp": "jdSpider",
+            "comp": "Spider_jd",
             "description": "京东商城爬虫程序",
             "row": 5,
             "local": 1,

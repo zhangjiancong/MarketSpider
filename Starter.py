@@ -79,6 +79,9 @@ def runtime_check():
     else:
         return True
 
+def toLocaleTimeString(time):
+    return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time))
+
 
 while runtime_check():
     print("  1   修复 [运行依赖]")
@@ -94,13 +97,13 @@ while True:
     print("-" * 20 + "MarketSpider Starter 启动器" + "-" * 20 + "\n")
     configFile = json.loads(open("config.json", "r").read())
     print(
-        f"<配置文件>\n - 浏览器\t{configFile['browser']}\n - 建立时间\t{configFile['create_time']}"
+        f"<配置文件>\n - 浏览器\t{configFile['browser']}\n - 建立时间\t{toLocaleTimeString(configFile['create_time'])}"
     )
     print("\n<已保存的Cookie>")
     cookie = scan_all_cookie()
     for c in cookie:
         maketime = time.localtime(os.stat("cookie\\" + c).st_mtime)
-        print(f"{time.strftime("%Y-%m-%d %H:%M:%S",maketime)}\t {c}")
+        print(f"{toLocaleTimeString(maketime)}\t {c}")
     print("[!] 大于3个月的Cookie可能失效,建议您重新保存")
     print("\n" + "-" * 20)
     print("1 编辑配置文件\t\t2 获取Cookie")

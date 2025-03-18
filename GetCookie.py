@@ -9,7 +9,7 @@ if Core.check_configFile_exist():
     Core.show_error_box(
         "配置文件异常", "未找到配置文件.\n请打开<Starter.py>生成配置文件"
     )
-driver = Core.BrowserControl(Core.pre_check_configFile(), g)
+driver = Core.BrowserControl(Core.pre_check_configFile(), g,l)
 url = [
     "https://login.taobao.com/member/login.jhtml?redirectURL=http%3A%2F%2Fwww.taobao.com%2F",
     "https://www.jd.com",
@@ -49,6 +49,10 @@ try:
         time.sleep(1)
     g.set_text("正在保存请稍后")
     err = driver.save_cookie(filename[user])
+    try:
+        driver.save_storage(filename[user])
+    except:
+        print('------------------------------err storage')
     if not err:
         g.set_text("保存成功", g.COLOR_RUNNING)
         g.set_status("保存成功，程序将稍后退出")
