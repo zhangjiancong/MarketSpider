@@ -4,7 +4,7 @@
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/zhangjiancong/MarketSpider.svg)](http://isitmaintained.com/project/zhangjiancong/MarketSpider "Percentage of issues still open")
 
-淘宝、京东、拼多多、1688、京喜信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
+淘宝、京东、1688商品信息爬虫。方便自动化的获取指定关键词的商品链接、商品价格、商品名称、店铺名称、店铺链接等信息。配合Tkinter的GUI界面，可以清晰监测运行状态。  
 不是专业程序员，仅为Python和web自动化爱好者，欢迎提供建议和程序改进！
 
 
@@ -37,8 +37,6 @@
 #### 3、启动对应程序开始使用
 `Starter.py`是一个友好的启动器工具.使用此工具帮助您快速进行首次运行配置,及各程序启动.
 
-## 拼多多、京喜平台特别说明
-拼多多、京喜平台因技术原因，使用半自动化方案，手动保存浏览器的请求，使用对应程序进行读取并保存成为CSV文件。无需使用Selenium环境。如何获取HAR文件可至[HAR文件获取](https://github.com/zhangjiancong/MarketSpider/wiki)
 
 ## 用户隐私说明
 + 程序本身没有上传数据的代码和功能。
@@ -59,5 +57,3 @@
 | 1688Spider.py        | **1.0** <br> 2022-07-28       | 阿里巴巴1688爬虫程序    |
 | error.wav            |                              | 错误提示音乐          |
 | requirements.txt     |                              | pip依赖列表         |
-| jingxi_HAR_reader.py | **1.0** <br> 2022-07-28       | 京喜HAR读取程序       |
-| pdd_HAR_reader.py    | **1.0** <br> 2022-07-28       | 拼多多HAR读取程序      |
