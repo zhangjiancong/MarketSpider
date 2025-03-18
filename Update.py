@@ -133,7 +133,7 @@ def get_remote_version():
     global tableConfig
     try:
         get_release_version = requests.get(
-            "https://zhangjiancong.github.io/MarketSpider/pages/version.json",
+            "https://zhangjiancong.github.io/MarketSpider/pages/version.json?t="+str(time.time()),
             timeout=10,
         )
         if get_release_version.status_code == 200:
