@@ -57,3 +57,8 @@
 | 1688Spider.py        | **1.0** <br> 2022-07-28       | 阿里巴巴1688爬虫程序    |
 | error.wav            |                              | 错误提示音乐          |
 | requirements.txt     |                              | pip依赖列表         |
+
+## 打赏
+如果本程序对您有帮助或您认为该程序不错,欢迎通过以下渠道打赏,无论金额都不胜感激！  
+*为便于展示建议您备注用户名或联系方式*
+![打赏二维码](https://zhangjiancong.github.io/MarketSpider/pages/sponser.jpg)
