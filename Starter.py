@@ -1,4 +1,4 @@
-# V1.0
+# V1.1
 import json
 import os
 import time
@@ -79,8 +79,10 @@ def runtime_check():
     else:
         return True
 
-def toLocaleTimeString(time):
-    return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time))
+def toLocaleTimeString(timestamp):
+    if isinstance(timestamp, time.struct_time):
+        return time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
 
 while runtime_check():
@@ -109,8 +111,7 @@ while True:
     print("1 编辑配置文件\t\t2 获取Cookie")
     print("3 更新工具")
     print("4 淘宝\t\t5 京东")
-    print("6 1688\t\t7 拼多多HarReader")
-    print("8 京喜HarReader")
+    print("6 1688\t\t")
     match input("输入序号打开对应功能:"):
         case "1":
             create_configFile()
@@ -124,9 +125,5 @@ while True:
             os.system("python Spider_jd.py")
         case "6":
             os.system("python Spider_1688.py")
-        case "7":
-            os.system("python HarReader_pdd.py")
-        case "8":
-            os.system("python HarReader_jingxi.py")
         case "_":
             print("这个数字暂无功能")
