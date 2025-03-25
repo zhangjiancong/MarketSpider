@@ -22,9 +22,9 @@
         "instruction": "修复显示时间时的类型错误"
     },
     "Spider_taobao": {
-        "version": "1.1",
-        "time": "2024-04-22",
-        "instruction": ""
+        "version": "2.0.0",
+        "time": "2025-03-25",
+        "instruction": "公测版本,尚未对反爬进行处理."
     },
     "Spider_jd": {
         "version": "2.0.0",

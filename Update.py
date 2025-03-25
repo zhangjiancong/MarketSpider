@@ -43,7 +43,7 @@ def gui_func():
             "remote": 1,
         },
         {
-            "comp": "taobaoSpider",
+            "comp": "Spider_taobao",
             "description": "淘宝网爬虫程序",
             "row": 4,
             "local": 1,
