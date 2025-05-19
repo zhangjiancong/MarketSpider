@@ -42,7 +42,8 @@ def create_configFile():
     print("\n" + "=" * 30)
     print("? 选择使用的浏览器")
     print("-> 1 Chrome \n-> 2 Edge \n-> 3 Firefox")
-    match input(""):
+    browser_input = input("")
+    match browser_input:
         case "1":
             config["browser"] = "chrome"
         case "2":
@@ -52,6 +53,25 @@ def create_configFile():
         case "_":
             print("输入不合法")
             return
+    print("\n" + "=" * 30)
+    print("? 选择输出格式（可多选，用逗号分隔，例如 1,2）")
+    print("-> 1 CSV \n-> 2 JSON \n-> 3 Excel \n-> 4 TXT \n-> 5 SQL")
+    output_input = input("输入数字（例如 1,2,3）：")
+    format_map = {
+        "1": "csv",
+        "2": "json",
+        "3": "xlsx",
+        "4": "txt",
+        "5": "sql"
+    }
+    output_formats = []
+    for choice in output_input.split(","):
+        choice = choice.strip()
+        if choice in format_map:
+            output_formats.append(format_map[choice])
+    if not output_formats:
+        output_formats = ["csv", "json"]  # 默认输出 CSV 和 JSON
+    config["output_format"] = output_formats
     config["create_time"] = int(time.time())
     with open("config.json", "w") as fp:
         fp.write(json.dumps(config))
@@ -99,7 +119,7 @@ while True:
     print("-" * 20 + "MarketSpider Starter 启动器" + "-" * 20 + "\n")
     configFile = json.loads(open("config.json", "r").read())
     print(
-        f"<配置文件>\n - 浏览器\t{configFile['browser']}\n - 建立时间\t{toLocaleTimeString(configFile['create_time'])}"
+        f"<配置文件>\n - 浏览器\t{configFile['browser']}\n - 默认输出格式\t{', '.join(configFile.get('output_format', ['csv', 'json']))}（运行爬虫时可修改）\n - 建立时间\t{toLocaleTimeString(configFile['create_time'])}"
     )
     print("\n<已保存的Cookie>")
     cookie = scan_all_cookie()
@@ -124,6 +144,6 @@ while True:
         case "5":
             os.system("python Spider_jd.py")
         case "6":
-            os.system("python Spider_1688.py")
+            os.system("python 1688Spider.py")
         case "_":
             print("这个数字暂无功能")

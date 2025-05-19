@@ -3,13 +3,18 @@ import sys
 import time
 import random
 import traceback
+import json
 from selenium.webdriver.common.by import By
 import Core
-
 
 try:
     ilog = Core.Logger("jd")
     bot_gui = Core.Gui("京东")
+
+    # 读取配置文件
+    with open("config.json", "r") as f:
+        config = json.load(f)
+    default_output_formats = config.get("output_format", ["csv", "json"])  # 默认 CSV 和 JSON
 
     # 获取商品关键词
     bot_gui.set_text("请输入商品关键词", bot_gui.COLOR_ATTENTION)
@@ -19,10 +24,27 @@ try:
         ilog.write_error("商品关键词为空请检查您的输入.", dialog=True)
         sys.exit(1)
 
+    # 获取用户选择的输出格式
+    bot_gui.set_text("请选择输出格式", bot_gui.COLOR_ATTENTION)
+    output_formats = bot_gui.ask_output_formats(default_formats=default_output_formats)
+    ilog.write_info(f"用户选择的输出格式: {output_formats}")
+
     # 初始化浏览器
     bot_gui.set_text("程序正在准备", bot_gui.COLOR_DEFAULT)
-    bot_gui.set_status("正在初始化csv...")
-    csv = Core.CsvWriter(keyword, "jd")
+    bot_gui.set_status("正在初始化输出文件...")
+    # 初始化写入器
+    writers = {}
+    if "csv" in output_formats:
+        writers["csv"] = Core.CsvWriter(keyword, "jd")
+    if "json" in output_formats:
+        writers["json"] = Core.JsonWriter(keyword, "jd")
+    if "xlsx" in output_formats:
+        writers["xlsx"] = Core.ExcelWriter(keyword, "jd")
+    if "txt" in output_formats:
+        writers["txt"] = Core.TxtWriter(keyword, "jd")
+    if "sql" in output_formats:
+        writers["sql"] = Core.SqlWriter(keyword, "jd")
+
     browser = Core.BrowserControl(Core.pre_check_configFile(), bot_gui, ilog)
     # 注入Cookie
     browser.navi_to("https://www.jd.com")
@@ -47,7 +69,6 @@ try:
     for page in range(page_start, page_end + 1):
         try:
             bot_gui.set_text("正在运行", bot_gui.COLOR_RUNNING)
-            # browser.browser.execute_script(f"SEARCH.page({2 * page - 1}, true)")
             browser.navi_to(
                 f"https://search.jd.com/Search?keyword={keyword}&page={2 * page - 1}"
             )
@@ -82,7 +103,9 @@ try:
                     data["shop_link"] = browser.find_element_css(
                         "div>div.p-shop>span>a", good
                     ).get_attribute("href")
-                    csv.write_new_line(data)
+                    # 保存到所有配置的格式
+                    for format_type, writer in writers.items():
+                        writer.write_new_line(data)
                 except Exception as e:
                     ilog.write_error(f"获取单个商品信息时出错:{e}")
             bot_gui.set_text("正在延时", bot_gui.COLOR_DEFAULT)
@@ -98,7 +121,18 @@ try:
     ilog.write_info("Spider Successful")
     bot_gui.set_text("程序结束!", bot_gui.COLOR_ATTENTION)
     bot_gui.set_status("正在进行最后处理,请稍后...")
-    csv.close_csv()
+    # 关闭所有写入器
+    for format_type, writer in writers.items():
+        if format_type == "csv":
+            writer.close_csv()
+        elif format_type == "json":
+            writer.close_json()
+        elif format_type == "xlsx":
+            writer.close_excel()
+        elif format_type == "txt":
+            writer.close_txt()
+        elif format_type == "sql":
+            writer.close_sql()
     browser.exit()
     ilog.write_info("Exit...")
     bot_gui.set_text("即将退出", bot_gui.COLOR_DEFAULT)
@@ -109,3 +143,4 @@ except Exception as e:
     print(f"未捕获的错误:{e}")
     print(traceback.format_stack())
     input("---Error---")
+    

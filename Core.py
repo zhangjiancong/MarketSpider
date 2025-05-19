@@ -8,6 +8,8 @@ import os
 import tkinter.font
 import tkinter.ttk as ttk
 import traceback
+import openpyxl
+from openpyxl.utils import get_column_letter
 from tkinter import font
 from threading import Thread
 from tkinter import messagebox
@@ -130,6 +132,55 @@ class Gui:
 
     def ui_start(self):
         Thread(target=self.ui_loop, daemon=True).start()
+
+    def ask_output_formats(self, default_formats: List[str] = None) -> List[str]:
+        """
+        弹出多选框窗口，让用户选择输出格式
+        @param default_formats: 默认选中的格式列表（从 config.json 读取）
+        @return: 用户选择的格式列表（["csv", "json", "xlsx", "txt", "sql"] 的子集）
+        """
+        if default_formats is None:
+            default_formats = ["csv", "json"]
+
+        formats = [
+            ("CSV", "csv"),
+            ("JSON", "json"),
+            ("Excel", "xlsx"),
+            ("TXT", "txt"),
+            ("SQL", "sql")
+        ]
+        selected_formats = []
+
+        # 创建新窗口
+        x = int((self.ui_root.winfo_screenwidth() - self.ui_root.winfo_reqwidth()) / 2)
+        y = int((self.ui_root.winfo_screenheight() - self.ui_root.winfo_reqheight()) / 2)
+        new_window = tkinter.Toplevel(master=self.ui_root)
+        new_window.attributes("-topmost", "true")
+        new_window.title("选择输出格式")
+        new_window.geometry("+{}+{}".format(x, y))
+        new_window.attributes("-toolwindow", 2)
+
+        tkinter.Label(new_window, text="请选择输出文件格式（可多选）：").pack(fill=tkinter.X, padx=5, pady=5)
+
+        # 创建多选框
+        vars_dict = {}
+        for name, format_id in formats:
+            var = tkinter.BooleanVar(value=format_id in default_formats)
+            vars_dict[format_id] = var
+            tkinter.Checkbutton(new_window, text=name, variable=var).pack(anchor="w", padx=10)
+
+        # 确认按钮
+        def confirm():
+            nonlocal selected_formats
+            selected_formats = [fmt for fmt, var in vars_dict.items() if var.get()]
+            if not selected_formats:
+                messagebox.showerror("错误", "请至少选择一种输出格式！")
+                return
+            new_window.destroy()
+
+        tkinter.Button(new_window, text="确认", command=confirm).pack(pady=5)
+        self.ui_root.wait_window(new_window)
+        return selected_formats
 
 
 class Logger:
@@ -433,6 +484,164 @@ class CsvWriter:
 
     def close_csv(self):
         self.csvStream.close()
+
+class JsonWriter:
+    def __init__(self, keyword, market):
+        """
+        初始化 JSON 文件写入器
+        @param keyword: 搜索关键词
+        @param market: 平台名称 (如 jd, taobao, 1688)
+        """
+        if not os.path.exists("result"):
+            os.mkdir("result")
+        self.filename = f'result/{keyword}-{market}-{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.json'
+        self.data_list = []
+        if os.path.exists(self.filename):
+            try:
+                with open(self.filename, 'r', encoding='utf-8') as f:
+                    self.data_list = json.load(f)
+            except:
+                pass
+
+    def write_new_line(self, tdata: Dict):
+        """
+        将单条数据追加到 JSON 数据列表中
+        @param tdata: 包含商品信息的字典
+        """
+        self.data_list.append(tdata)
+        with open(self.filename, 'w', encoding='utf-8') as f:
+            json.dump(self.data_list, f, ensure_ascii=False, indent=2)
+
+    def close_json(self):
+        pass
+
+
+class ExcelWriter:
+    def __init__(self, keyword, market):
+        """
+        初始化 Excel 文件写入器
+        @param keyword: 搜索关键词
+        @param market: 平台名称 (如 jd, taobao, 1688)
+        """
+        if not os.path.exists("result"):
+            os.mkdir("result")
+        self.filename = f'result/{keyword}-{market}-{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.xlsx'
+        self.workbook = openpyxl.Workbook()
+        self.worksheet = self.workbook.active
+        self.worksheet.title = "MarketSpider Data"
+        # 定义表头
+        self.fieldnames = [
+            "item_link", "item_name", "item_price", "item_image", "item_payment",
+            "item_rates", "item_sales", "item_shop", "shop_link", "remarks"
+        ]
+        self.cn_names = [
+            "商品链接", "商品名称", "商品价格", "商品图片", "已付款人数",
+            "已评价数", "商品销量", "店铺名称", "店铺链接", "备注"
+        ]
+        # 写入表头
+        for col, header in enumerate(self.cn_names, 1):
+            self.worksheet[f"{get_column_letter(col)}1"] = header
+        self.row = 2  # 从第二行开始写入数据
+
+    def write_new_line(self, tdata: Dict):
+        """
+        将单条数据写入 Excel 文件
+        @param tdata: 包含商品信息的字典
+        """
+        for col, key in enumerate(self.fieldnames, 1):
+            self.worksheet[f"{get_column_letter(col)}{self.row}"] = tdata.get(key, "")
+        self.row += 1
+        self.workbook.save(self.filename)
+
+    def close_excel(self):
+        """
+        保存并关闭 Excel 文件
+        """
+        self.workbook.save(self.filename)
+        self.workbook.close()
+
+
+class TxtWriter:
+    def __init__(self, keyword, market):
+        """
+        初始化 TXT 文件写入器
+        @param keyword: 搜索关键词
+        @param market: 平台名称 (如 jd, taobao, 1688)
+        """
+        if not os.path.exists("result"):
+            os.mkdir("result")
+        self.filename = f'result/{keyword}-{market}-{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.txt'
+        self.fieldnames = [
+            "item_link", "item_name", "item_price", "item_image", "item_payment",
+            "item_rates", "item_sales", "item_shop", "shop_link", "remarks"
+        ]
+        # 写入表头
+        with open(self.filename, 'a', encoding='utf-8') as f:
+            f.write("\t".join([
+                "商品链接", "商品名称", "商品价格", "商品图片", "已付款人数",
+                "已评价数", "商品销量", "店铺名称", "店铺链接", "备注"
+            ]) + "\n")
+
+    def write_new_line(self, tdata: Dict):
+        """
+        将单条数据写入 TXT 文件
+        @param tdata: 包含商品信息的字典
+        """
+        with open(self.filename, 'a', encoding='utf-8') as f:
+            values = [str(tdata.get(key, "")) for key in self.fieldnames]
+            f.write("\t".join(values) + "\n")
+
+    def close_txt(self):
+        pass
+
+
+class SqlWriter:
+    def __init__(self, keyword, market):
+        """
+        初始化 SQL 文件写入器，生成 INSERT 语句
+        @param keyword: 搜索关键词
+        @param market: 平台名称 (如 jd, taobao, 1688)
+        """
+        if not os.path.exists("result"):
+            os.mkdir("result")
+        self.filename = f'result/{keyword}-{market}-{time.strftime("%Y-%m-%d_%H-%M", time.localtime())}.sql'
+        self.table_name = "market_spider_data"
+        self.fieldnames = [
+            "item_link", "item_name", "item_price", "item_image", "item_payment",
+            "item_rates", "item_sales", "item_shop", "shop_link", "remarks"
+        ]
+        # 写入表结构（可选）
+        with open(self.filename, 'a', encoding='utf-8') as f:
+            f.write(f"""-- Table structure for {self.table_name}
+                CREATE TABLE IF NOT EXISTS {self.table_name} (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    item_link TEXT,
+                    item_name TEXT,
+                    item_price VARCHAR(50),
+                    item_image TEXT,
+                    item_payment VARCHAR(50),
+                    item_rates VARCHAR(50),
+                    item_sales VARCHAR(50),
+                    item_shop VARCHAR(255),
+                    shop_link TEXT,
+                    remarks TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n""")
+
+    def write_new_line(self, tdata: Dict):
+        """
+        将单条数据写入 SQL 文件作为 INSERT 语句
+        @param tdata: 包含商品信息的字典
+        """
+        values = []
+        for key in self.fieldnames:
+            value = str(tdata.get(key, "")).replace("'", "''")  # 转义单引号
+            values.append(f"'{value}'")
+        with open(self.filename, 'a', encoding='utf-8') as f:
+            f.write(f"INSERT INTO {self.table_name} ({', '.join(self.fieldnames)}) VALUES ({', '.join(values)});\n")
+
+    def close_sql(self):
+        pass
 
 
 def check_configFile_exist():

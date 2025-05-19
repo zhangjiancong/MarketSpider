@@ -1,3 +1,4 @@
 playsound==1.2.2
 selenium
 requests
+openpyxl

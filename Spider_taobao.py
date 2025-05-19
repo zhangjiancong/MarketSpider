@@ -3,6 +3,7 @@ import sys
 import time
 import random
 import traceback
+import json
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import Core
@@ -10,6 +11,12 @@ import Core
 try:
     ilog = Core.Logger("taobao")
     bot_gui = Core.Gui("淘宝")
+
+    # 读取配置文件
+    with open("config.json", "r") as f:
+        config = json.load(f)
+    default_output_formats = config.get("output_format", ["csv", "json"])  # 默认 CSV 和 JSON
+
     # 获取商品关键词
     bot_gui.set_text("请输入商品关键词", bot_gui.COLOR_ATTENTION)
     keyword = bot_gui.ask_string("请输入商品关键词", "输入商品关键词")
@@ -18,10 +25,28 @@ try:
         ilog.write_error("商品关键词为空请检查您的输入.", dialog=True)
         sys.exit(1)
 
+    # 获取用户选择的输出格式
+    bot_gui.set_text("请选择输出格式", bot_gui.COLOR_ATTENTION)
+    output_formats = bot_gui.ask_output_formats(default_formats=default_output_formats)
+    ilog.write_info(f"用户选择的输出格式: {output_formats}")
+    print(f"用户选择的输出格式: {output_formats}")
+
     # 初始化浏览器
     bot_gui.set_text("程序正在准备", bot_gui.COLOR_DEFAULT)
-    bot_gui.set_status("正在初始化csv...")
-    csv = Core.CsvWriter(keyword, "taobao")
+    bot_gui.set_status("正在初始化输出文件...")
+    # 初始化写入器
+    writers = {}
+    if "csv" in output_formats:
+        writers["csv"] = Core.CsvWriter(keyword, "taobao")
+    if "json" in output_formats:
+        writers["json"] = Core.JsonWriter(keyword, "taobao")
+    if "xlsx" in output_formats:
+        writers["xlsx"] = Core.ExcelWriter(keyword, "taobao")
+    if "txt" in output_formats:
+        writers["txt"] = Core.TxtWriter(keyword, "taobao")
+    if "sql" in output_formats:
+        writers["sql"] = Core.SqlWriter(keyword, "taobao")
+
     browser = Core.BrowserControl(Core.pre_check_configFile(), bot_gui, ilog)
     # 注入Cookie
     browser.navi_to("https://www.taobao.com")
@@ -88,7 +113,9 @@ try:
                         "a > div > div.shopInfo--Kmh31boz.adaptMod--JjSKtdhD > div.TextAndPic--grkZAtsC > a",
                         good,
                     ).get_attribute("href")
-                    csv.write_new_line(data)
+                    # 保存到所有配置的格式
+                    for format_type, writer in writers.items():
+                        writer.write_new_line(data)
                 except Exception as e:
                     ilog.write_error(f"获取单个商品信息时出错:{e}")
             bot_gui.set_text("正在延时", bot_gui.COLOR_DEFAULT)
@@ -104,7 +131,18 @@ try:
     ilog.write_info("Spider Successful")
     bot_gui.set_text("程序结束!", bot_gui.COLOR_ATTENTION)
     bot_gui.set_status("正在进行最后处理,请稍后...")
-    csv.close_csv()
+    # 关闭所有写入器
+    for format_type, writer in writers.items():
+        if format_type == "csv":
+            writer.close_csv()
+        elif format_type == "json":
+            writer.close_json()
+        elif format_type == "xlsx":
+            writer.close_excel()
+        elif format_type == "txt":
+            writer.close_txt()
+        elif format_type == "sql":
+            writer.close_sql()
     browser.exit()
     ilog.write_info("Exit...")
     bot_gui.set_text("即将退出", bot_gui.COLOR_DEFAULT)
@@ -115,3 +153,4 @@ except Exception as e:
     print(f"未捕获的错误:{e}")
     print(traceback.format_stack())
     input("---Error---")
+    
